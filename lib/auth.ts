@@ -11,38 +11,14 @@ import {
   oneTap,
   organization,
 } from "better-auth/plugins";
-import { MysqlDialect } from "kysely";
-import { createPool } from "mysql2/promise";
-
-const dialect = (() => {
-  if (process.env.USE_MYSQL) {
-    if (!process.env.MYSQL_DATABASE_URL) {
-      throw new Error(
-        "Using MySQL dialect without MYSQL_DATABASE_URL. Please set it in your environment variables.",
-      );
-    }
-    return new MysqlDialect(createPool(process.env.MYSQL_DATABASE_URL || ""));
-  } else {
-    if (process.env.TURSO_DATABASE_URL && process.env.TURSO_AUTH_TOKEN) {
-      return new LibsqlDialect({
-        url: process.env.TURSO_DATABASE_URL,
-        authToken: process.env.TURSO_AUTH_TOKEN,
-      });
-    }
-  }
-  return null;
-})();
-
-if (!dialect) {
-  throw new Error("No dialect found");
-}
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "./prisma";
 
 export const auth = betterAuth({
   appName: "Better Auth Demo",
-  database: {
-    dialect,
-    type: "sqlite",
-  },
+  database: prismaAdapter(prisma, {
+    provider: "sqlite",
+  }),
   account: {
     accountLinking: {
       trustedProviders: ["email-password"],
