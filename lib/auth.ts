@@ -43,7 +43,6 @@ export const auth = betterAuth({
     dialect,
     type: "sqlite",
   },
-  emailVerification: {},
   account: {
     accountLinking: {
       trustedProviders: ["email-password"],
